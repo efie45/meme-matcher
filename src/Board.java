@@ -25,7 +25,8 @@ public class Board extends JFrame{
         List<ImageIcon> imageIcons = new ArrayList<>();
 
         for (int i = 1; i < pairs + 1; i++){
-            ImageIcon ii = new ImageIcon(this.getClass().getResource("/images/meme" + i + ".jpg"));
+            ImageIcon ii = new ImageIcon(this.getClass().getResource("/images/thumbnails 150x150/meme"
+                    + i + "thumb.jpg"));
             imageIcons.add(ii);
         }
 
@@ -72,13 +73,11 @@ public class Board extends JFrame{
     public void doTurn(){
         if (c1 == null && c2 == null){
             c1 = selectedCard;
-            c1.setText(String.valueOf(c1.getId()));
             c1.setIcon(c1.getMeme());
         }
 
         if (c1 != null && c1 != selectedCard && c2 == null){
             c2 = selectedCard;
-            c2.setText(String.valueOf(c2.getId()));
             c2.setIcon(c2.getMeme());
             t.start();
 
@@ -98,8 +97,6 @@ public class Board extends JFrame{
         }
 
         else{
-            c1.setText(""); //'hides' text
-            c2.setText("");
             c1.setIcon(null);
             c2.setIcon(null);
         }
