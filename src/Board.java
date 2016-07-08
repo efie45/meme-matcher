@@ -1,10 +1,8 @@
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class Board extends JFrame{
@@ -15,7 +13,9 @@ public class Board extends JFrame{
     private Card selectedCard;
     private Card c1;
     private Card c2;
-    private Timer t;
+    private Timer t = new Timer(750, e -> {
+        checkCards();
+    });
 
     public Board(){
 
@@ -40,11 +40,9 @@ public class Board extends JFrame{
             Card c = new Card();
             c.setId(val);
             c.setMeme(imageIcons.get(val));
-            c.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent ae){
-                    selectedCard = c;
-                    doTurn();
-                }
+            c.addActionListener(e -> {
+                selectedCard = c;
+                doTurn();
             });
             cardsList.add(c);
         }
@@ -53,11 +51,6 @@ public class Board extends JFrame{
         this.icons = imageIcons;
 
         //set up the timer
-        t = new Timer(750, new ActionListener(){
-            public void actionPerformed(ActionEvent ae){
-                checkCards();
-            }
-        });
 
         t.setRepeats(false);
 
@@ -106,9 +99,8 @@ public class Board extends JFrame{
 
     public boolean isGameWon(){
         for(Card c: this.cards){
-            if (c.getMatched() == false){
-                return false;
-            }
+            if (!c.getMatched()) return false;
+            continue;
         }
         return true;
     }
