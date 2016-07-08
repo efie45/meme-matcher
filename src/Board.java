@@ -11,17 +11,14 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class Board extends JFrame{
 
-    private String difficulty;
-    private int pairs;
-    private int[] gridSize = {3, 4};
+    private int pairs = 3;
+    private int[] gridSize = {2, 3};
     private List<Card> cards;
     private List<ImageIcon> icons;
     private Card selectedCard;
     private Card c1;
     private Card c2;
-    private Timer t = new Timer(750, e -> {
-        checkCards();
-    });
+    private Timer t = new Timer(700, e -> checkCards());
     JMenuBar menuBar;
     JMenu file, newGame, exit;
     JMenuItem ngEasy, ngMedium, ngHard;
@@ -71,7 +68,6 @@ public class Board extends JFrame{
         ngEasy = new JMenuItem("Easy 2x3");
         ngEasy.addActionListener(e -> {
             System.out.println("Starting new game on easy level");
-            difficulty = "easy";
             pairs = 3;
             gridSize[0] = 2;
             gridSize[1] = 3;
@@ -81,15 +77,15 @@ public class Board extends JFrame{
         ngMedium = new JMenuItem("Medium 4x4");
         ngMedium.addActionListener(e -> {
             System.out.println("Starting new game on medium");
-            difficulty = "medium";
             pairs = 8;
+            gridSize[0] = 4;
+            gridSize[1] = 4;
         });
         newGame.add(ngMedium);
 
         ngHard = new JMenuItem("Hard 4x5");
         ngHard.addActionListener(e -> {
             System.out.println("Starting new game on hard");
-            difficulty = "hard";
             pairs = 10;
             gridSize[0] = 4;
             gridSize[1] = 5;
@@ -101,7 +97,7 @@ public class Board extends JFrame{
         List<Integer> cardVals = new ArrayList<>();
         List<ImageIcon> imageIcons = new ArrayList<>();
 
-        for (int i = 1; i < pairs + 1; i++){
+        for (int i = 1; i <= pairs; i++) {
             ImageIcon ii = new ImageIcon(this.getClass().getResource("/images/thumbnails 150x150/meme"
                     + i + "thumb.jpg"));
             imageIcons.add(ii);
@@ -134,7 +130,7 @@ public class Board extends JFrame{
         //set up the board itself
         this.setJMenuBar(menuBar);
         Container pane = getContentPane();
-        pane.setLayout(new GridLayout(4, 5));
+        pane.setLayout(new GridLayout(gridSize[0], gridSize[1]));
         for (Card c : cards){
             pane.add(c);
         }
@@ -162,7 +158,7 @@ public class Board extends JFrame{
             c1.setMatched(true); //flags the button as having been matched
             c2.setMatched(true);
             if (this.isGameWon()){
-                JOptionPane.showMessageDialog(this, "You win!");
+                JOptionPane.showMessageDialog(this, "Winner winner chicken dinner!");
                 System.exit(0);
             }
         }
