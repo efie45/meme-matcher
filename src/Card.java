@@ -24,7 +24,6 @@ public class Card extends JButton{
         return this.id;
     }
 
-
     public void setMatched(boolean matched){
         this.matched = matched;
     }
