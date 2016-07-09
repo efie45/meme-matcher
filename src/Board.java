@@ -27,7 +27,7 @@ public class Board extends JFrame{
     private Dimension d = new Dimension();
     private JMenuBar menuBar;
     private JMenu file, newGame, exit;
-    private JMenuItem ngEasy, ngMedium, ngHard, instructions;
+    private JMenuItem ngEasy, ngMedium, ngHard, ngCrazyMemes, instructions;
     private JLabel hitScore, missScore, turnsLabel;
     private JPanel scorePanel;
     private Container pane;
@@ -249,6 +249,19 @@ public class Board extends JFrame{
             setBoard();
         });
         newGame.add(ngHard);
+
+        ngCrazyMemes = new JMenuItem("Crazy 6x6");
+        ngCrazyMemes.addActionListener(e -> {
+            pairs = 18;
+            gridSize[0] = 6;
+            gridSize[1] = 6;
+            d = new Dimension(920, 1000);
+            this.setSize(d);
+
+            makeCards();
+            setBoard();
+        });
+        newGame.add(ngCrazyMemes);
 
     }
 
