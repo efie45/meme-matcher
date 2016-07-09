@@ -2,8 +2,6 @@ import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,49 +22,166 @@ public class Board extends JFrame{
     });
     private int hits = 0;
     private int misses = 0;
+    private int turns = 1;
 
     private Dimension d = new Dimension();
     private JMenuBar menuBar;
     private JMenu file, newGame, exit;
     private JMenuItem ngEasy, ngMedium, ngHard, instructions;
-    private JLabel hitScore, missScore;
+    private JLabel hitScore, missScore, turnsLabel;
     private JPanel scorePanel;
-
+    private Container pane;
+    private Container gridPane;
+    private boolean isPaneEmpty = true;
 
     public void updateHitMiss() {
         hitScore.setText("Hits: " + hits);
         missScore.setText("Misses: " + misses);
+        turnsLabel.setText("Turn: " + turns);
     }
 
     public Board(){
 
+        makeMenu();
+
+        t.setRepeats(false);
+
+        turnsLabel = new JLabel("Turn: 1");
+        hitScore = new JLabel("Hits: 0");
+        missScore = new JLabel("Misses: 0");
+
+        makeCards();
+
+        setBoard();
+    }
+
+    public void doTurn(){
+        if (c1 == null && c2 == null){
+            c1 = selectedCard;
+            c1.setIcon(c1.getMeme());
+        }
+        if (c1 != null && c1 != selectedCard && c2 == null){
+            c2 = selectedCard;
+            c2.setIcon(c2.getMeme());
+            t.start();
+        }
+    }
+
+    public void checkCards(){
+        if (c1.getId() == c2.getId()){//match condition
+            c1.setEnabled(false); //disables the button
+            c2.setEnabled(false);
+            c1.setMatched(true); //flags the button as having been matched
+            c2.setMatched(true);
+            hits++;
+            turns++;
+            if (this.isGameWon()) {
+                JOptionPane.showMessageDialog(this, "Winner winner chicken dinner!");
+            }
+        }
+
+        else{
+            c1.setIcon(null);
+            c2.setIcon(null);
+            misses++;
+            turns++;
+        }
+        c1 = null; //reset c1 and c2
+        c2 = null;
+    }
+
+    public boolean isGameWon(){
+        for(Card c: this.cards){
+            if (!c.getMatched()) return false;
+            continue;
+        }
+        return true;
+    }
+
+    public void deleteCards() {
+        for (Card c : cards) {
+            cards.remove(c);
+        }
+    }
+
+    public void setBoard() {
+        if (!isPaneEmpty) {
+            pane.removeAll();
+        }
+        scorePanel = new JPanel();
+        scorePanel.add(turnsLabel);
+        scorePanel.add(hitScore);
+        scorePanel.add(missScore);
+        pane = getContentPane();
+        gridPane = new Container();
+        pane.add(gridPane, BorderLayout.CENTER);
+        pane.add(menuBar, BorderLayout.NORTH);
+        pane.add(scorePanel, BorderLayout.SOUTH);
+        gridPane.setLayout(new GridLayout(gridSize[0], gridSize[1]));
+        for (Card c : cards) {
+            gridPane.add(c);
+        }
+        isPaneEmpty = false;
+        setTitle("Meme Match Game");
+    }
+
+    public void makeCards() {
+        List<Card> cardsList = new ArrayList<>();
+        List<Integer> cardVals = new ArrayList<>();
+        List<ImageIcon> imageIcons = new ArrayList<>();
+
+        for (int i = 1; i <= pairs; i++) {
+            ImageIcon ii = new ImageIcon(this.getClass().getResource("/images/thumbnails 150x150/meme"
+                    + i + "thumb.jpg"));
+            imageIcons.add(ii);
+        }
+
+        for (int j = 0; j < pairs; j++) {
+            cardVals.add(j);
+            cardVals.add(j);
+        }
+        Collections.shuffle(cardVals);
+
+        for (int val : cardVals) {
+            Card c = new Card();
+            c.setBackground(Color.black);
+            c.setId(val);
+            c.setMeme(imageIcons.get(val));
+            c.addActionListener(e -> {
+                selectedCard = c;
+                doTurn();
+            });
+            cardsList.add(c);
+        }
+        if (cards != null) {
+            cards.clear();
+        }
+        if (icons != null) {
+            icons.clear();
+        }
+        this.cards = cardsList;
+        this.icons = imageIcons;
+
+
+    }
+
+    public void makeMenu() {
         menuBar = new JMenuBar();
 
         file = new JMenu("File");
         menuBar.add(file);
 
         exit = new JMenu("Exit");
-        exit.setMnemonic(KeyEvent.VK_X);
-        exit.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                System.exit(0);
-            }
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
         exit.addMenuListener(new MenuListener() {
             @Override
             public void menuSelected(MenuEvent e) {
                 System.exit(0);
             }
+
             @Override
             public void menuDeselected(MenuEvent e) {
             }
+
             @Override
             public void menuCanceled(MenuEvent e) {
             }
@@ -100,6 +215,10 @@ public class Board extends JFrame{
             pairs = 3;
             gridSize[0] = 2;
             gridSize[1] = 3;
+            d = new Dimension(600, 600);
+            this.setSize(d);
+            makeCards();
+            setBoard();
         });
         newGame.add(ngEasy);
 
@@ -109,7 +228,11 @@ public class Board extends JFrame{
             pairs = 8;
             gridSize[0] = 4;
             gridSize[1] = 4;
-            this.setPreferredSize(new Dimension(600, 600));
+            d = new Dimension(610, 700);
+            this.setSize(d);
+
+            makeCards();
+            setBoard();
         });
         newGame.add(ngMedium);
 
@@ -119,109 +242,13 @@ public class Board extends JFrame{
             pairs = 10;
             gridSize[0] = 4;
             gridSize[1] = 5;
+            d = new Dimension(770, 690);
+            this.setSize(d);
 
+            makeCards();
+            setBoard();
         });
         newGame.add(ngHard);
-
-        t.setRepeats(false);
-
-
-        List<Card> cardsList = new ArrayList<>();
-        List<Integer> cardVals = new ArrayList<>();
-        List<ImageIcon> imageIcons = new ArrayList<>();
-
-        for (int i = 1; i <= pairs; i++) {
-            ImageIcon ii = new ImageIcon(this.getClass().getResource("/images/thumbnails 150x150/meme"
-                    + i + "thumb.jpg"));
-            imageIcons.add(ii);
-        }
-
-        for (int j = 0; j < pairs; j++){
-            cardVals.add(j);
-            cardVals.add(j);
-        }
-        Collections.shuffle(cardVals);
-
-        for (int val : cardVals){
-            Card c = new Card();
-            c.setBackground(Color.black);
-            c.setId(val);
-            c.setMeme(imageIcons.get(val));
-            c.addActionListener(e -> {
-                selectedCard = c;
-                doTurn();
-            });
-            cardsList.add(c);
-        }
-
-        this.cards = cardsList;
-        this.icons = imageIcons;
-
-        hitScore = new JLabel("Hits: 0");
-        missScore = new JLabel("Misses: 0");
-
-        //set up the board
-        //this.setJMenuBar(menuBar);
-        scorePanel = new JPanel();
-        scorePanel.add(hitScore);
-        scorePanel.add(missScore);
-        Container pane = getContentPane();
-        Container gridPane = new Container();
-        pane.add(gridPane, BorderLayout.CENTER);
-        pane.add(menuBar, BorderLayout.NORTH);
-        pane.add(scorePanel, BorderLayout.SOUTH);
-        gridPane.setLayout(new GridLayout(gridSize[0], gridSize[1]));
-        for (Card c : cards){
-            gridPane.add(c);
-        }
-        setTitle("Meme Match Game");
-    }
-
-    public void doTurn(){
-        if (c1 == null && c2 == null){
-            c1 = selectedCard;
-            c1.setIcon(c1.getMeme());
-        }
-
-        if (c1 != null && c1 != selectedCard && c2 == null){
-            c2 = selectedCard;
-            c2.setIcon(c2.getMeme());
-            t.start();
-
-        }
-    }
-
-    public void checkCards(){
-        if (c1.getId() == c2.getId()){//match condition
-            c1.setEnabled(false); //disables the button
-            c2.setEnabled(false);
-            c1.setMatched(true); //flags the button as having been matched
-            c2.setMatched(true);
-            if (this.isGameWon()){
-                JOptionPane.showMessageDialog(this, "Winner winner chicken dinner!");
-            }
-            hits++;
-        }
-
-        else{
-            c1.setIcon(null);
-            c2.setIcon(null);
-            misses++;
-        }
-        c1 = null; //reset c1 and c2
-        c2 = null;
-    }
-
-    public boolean isGameWon(){
-        for(Card c: this.cards){
-            if (!c.getMatched()) return false;
-            continue;
-        }
-        return true;
-    }
-
-    public void makeAndsetCards() {
-
 
     }
 
